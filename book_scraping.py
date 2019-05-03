@@ -108,3 +108,4 @@ def top_book_scraper():
     for x in range(10):
         db.books.insert_one(az_scraper(x))
 
+top_book_scraper()
