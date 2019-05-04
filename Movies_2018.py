@@ -21,8 +21,7 @@ def movie_scrape():
     
         soup=BeautifulSoup(response.text,'html.parser')
         ### Get the table with box office data ### 
-        souptables=soup.find_all('table') 
-        editedsouptables=souptables[3].find_all('td')
+        souptables=soup.find_all('table')
          ## Each data field is found in a <td> element in the fourth table. Store all data in a list ## 
         data=[]
         for i in souptables:
@@ -40,56 +39,50 @@ def movie_scrape():
         
         ### Fill NaNs ### 
         data=[np.nan if a =='na' else a for a in data]
-        
-        ### Define the feature names ###
-        columns=['rank','title','studio']
-        
+        print(data)
+        #return_df = pd.DataFrame(data, columns = ['bo_year_rank','title','studio'])
 
-        
-         
-    dirtymovies_df=movie_scrape()
+    #return(return_df) 
+movie_scrape()   
+#dirtymovies_df = movie_scrape()
+#print(dirtymovies_df)
 
-    dirtymovies_df
 
-    dirtymovies_df[:-295]
+# #create new dataframe for top 10 
+# toptenmovies_df = dirtymovies_df[:-295]
 
-#create new dataframe for top 10 
-toptenmovies_df = dirtymovies_df[:-295]
+# ##clean new dataframe for top 10 by removing rows domestic-pct, overseas-pct
+# toptenmovies_df.drop("domestic-pct", axis=1).drop("overseas-pct", axis=1)
 
-toptenmovies_df
+# Cleanedtoptenmovies_df= toptenmovies_df.drop("domestic-pct", axis=1).drop("overseas-pct", axis=1) 
 
-##clean new dataframe for top 10 by removing rows domestic-pct, overseas-pct
-toptenmovies_df.drop("domestic-pct", axis=1).drop("overseas-pct", axis=1)
+# Cleanedtoptenmovies_df.drop("worldwide-gross", axis=1).drop("domestic-gross", axis=1)
 
-Cleanedtoptenmovies_df= toptenmovies_df.drop("domestic-pct", axis=1).drop("overseas-pct", axis=1) 
+# Cleantopdata_df=Cleanedtoptenmovies_df.drop("worldwide-gross", axis=1).drop("domestic-gross", axis=1)
 
-Cleanedtoptenmovies_df.drop("worldwide-gross", axis=1).drop("domestic-gross", axis=1)
+# Cleantopdata_df.drop("overseas-gross", axis=1).drop("bo_year", axis=1)
 
-Cleantopdata_df=Cleanedtoptenmovies_df.drop("worldwide-gross", axis=1).drop("domestic-gross", axis=1)
+# Almostcleandata_df = Cleantopdata_df.drop("overseas-gross", axis=1).drop("bo_year", axis=1)
 
-Cleantopdata_df.drop("overseas-gross", axis=1).drop("bo_year", axis=1)
+# Almostcleandata_df.rename(columns={'bo_year_rank':'Ranking'}, inplace=True)
 
-Almostcleandata_df = Cleantopdata_df.drop("overseas-gross", axis=1).drop("bo_year", axis=1)
+# print(Almostcleandata_df)
 
-Almostcleandata_df.rename(columns={'bo_year_rank':'Ranking'}, inplace=True)
+# # Connect to mongo
+# conn = 'mongodb://localhost:27017'
+# client = pymongo.MongoClient(conn)
 
-print(Almostcleandata_df)
+# # Connect to Top 10 database
+# db = client.top_10_db
 
-# Connect to mongo
-conn = 'mongodb://localhost:27017'
-client = pymongo.MongoClient(conn)
+# # If collection books exists, drop it so the new top 10 information will replace it
+# db.movies.drop()
 
-# Connect to Top 10 database
-db = client.top_10_db
+# #Create new empty books collection
+# movies = db.movies
 
-# If collection books exists, drop it so the new top 10 information will replace it
-db.movies.drop()
-
-#Create new empty books collection
-movies = db.movies
-
-# Insert top 10 books/movies/music into database
-data = Cleanedtoptenmovies_df.to_dict(orient='records')
-db.movies.insert_many(data)
+# # Insert top 10 books/movies/music into database
+# data = Cleanedtoptenmovies_df.to_dict(orient='records')
+# db.movies.insert_many(data)
 
 
