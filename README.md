@@ -29,10 +29,8 @@ Chromedriver must be installeda nd Mongodb installed to local
 
 1. This script will only work for macs natively to work for windows you must change the config.yml file
 
-2. Run `top_ten.py` to import the data to MongoD
-3. Run `python etl.py` to extract the data and put it into the Postgres database
-4. ????
-5. Profit
+2. Run `top_ten.py` to import the data to MongoDb
+3. View your end result 
 
 
 ## Narrative / Motivation
