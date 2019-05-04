@@ -9,8 +9,11 @@
 
 ## Quick Summary 
 
-3-sentance summary of the project, what datasources, and final data model. 
-Then, provide the steps to run the pipeline. 
+Our ETL project provides a pipline for entertainment fans to find the top ten movies, music and books for the year 2018. 
+We used movies, from boxofficemjo, music (songs & albums) from Billboard and books from amazon. We took the ratings from amazon and joined them with our other dataset. We checking the data sets to add the attribute to each of our records. For Example, you will see Black Panther ranked at #2 on the box office hits, with a rating of 5 stars.   
+
+Our final dataest model reflects the cleaned top 10 movies, books and music.  We used Monogodb vs SQL to load the databases into a collection and synced up to our html page. The reason we chose to use Mongodb over SQL is for it's faster performance features, such as the read/write scanning for handling data.   
+
 
 Example:
 
@@ -19,9 +22,14 @@ advertisements. We used Historical TV Show ratings from tv guide, historical vie
 and show production budgets from Wikipedia. We provide our data in a SQL database which exposes, for the most genres, 
 KPIs to determine which genres are underrepresented and could deliver the most value to the FryCorp network if prioritized.
 
-Example steps to run the pipeline: 
-1. Start MySql
-2. Run `mysql -u username -p database_name < seed.sql` to seed the database and tables
+Example steps to run the pipeline:
+
+*Systems requirements*  
+Chromedriver must be installeda nd Mongodb installed to local
+
+1. This script will only work for macs natively to work for windows you must change the config.yml file
+
+2. Run `top_ten.py` to import the data to MongoD
 3. Run `python etl.py` to extract the data and put it into the Postgres database
 4. ????
 5. Profit
@@ -29,10 +37,8 @@ Example steps to run the pipeline:
 
 ## Narrative / Motivation
 
-Explain what problem you are trying to accomplish. Make something up that explains what use case you are trying to solve.
+* We are providing a Database of  Movies ,Music,  &books for consumers to visualize what is the top 10 for the year 2018. 
 
-Examples: 
-* We are providing a Database for a TV network to make decisions about what shows to promote for advertisement
 
 ## Final Schema / Data Model / How to use the data
 
