@@ -13,37 +13,40 @@ import pymongo
 
 def movie_scrape():
     """
-    Gets all box office data from 2018 to present from boxofficemojo.com
+    Gets all box office data for 2018 from boxofficemojo.com
     """
-    years=[str(a) for a in range(2018,2019)]
-    for year in years:
-        response=rq.get('https://www.boxofficemojo.com/yearly/chart/?view2=worldwide&yr=%s&p=.htm' % year)
+    # Query webpage and create a soup object
+    response = rq.get("https://www.boxofficemojo.com/yearly/chart/?yr=2018&p=.htm")
+    soup = BeautifulSoup(response.text,'html.parser')
     
-        soup=BeautifulSoup(response.text,'html.parser')
-        ### Get the table with box office data ### 
-        souptables=soup.find_all('table')
-         ## Each data field is found in a <td> element in the fourth table. Store all data in a list ## 
-        data=[]
-        for i in souptables:
-            if i.find('a')!=None:
-                data.append(i.find('a').contents[0])
-            elif i.find('font')!=None:
-                 data.append(i.find('font').contents[0])
-            elif i.find('b')!=None:
-                data.append(i.find('b').contents[0])
-                ### Still a <b> tag left for <font> tags ## 
-        data=[a.contents[0] if type(a)!=bs4.element.NavigableString else a for a in data]
-        
-        ### Strip special characters ### 
-        data=[re.sub('[^A-Za-z0-9-. ]+', '', a) for a in data]
-        
-        ### Fill NaNs ### 
-        data=[np.nan if a =='na' else a for a in data]
-        print(data)
-        #return_df = pd.DataFrame(data, columns = ['bo_year_rank','title','studio'])
+    #Get the table with box office data ### 
+    soup_table = soup.find_all('table')[6]
 
-    #return(return_df) 
-movie_scrape()   
+    #Get the rows within that table
+    soup_movies = soup_table.find_all("td")
+
+    # Pull the data from the soup object and put into a list
+    data = []
+    for i in soup_movies:
+        if i.find('a')!=None:
+            data.append(i.find('a').contents[0])
+        elif i.find('font')!=None:
+            data.append(i.find('font').contents[0])
+        elif i.find('b')!=None:
+            data.append(i.find('b').contents[0])
+            ### Still a <b> tag left for <font> tags ## 
+    data=[a.contents[0] if type(a)!=bs4.element.NavigableString else a for a in data]
+    
+    ### Strip special characters ### 
+    data=[re.sub('[^A-Za-z0-9-. ]+', '', a) for a in data]
+    
+    ### Fill NaNs ### 
+    data=[np.nan if a =='na' else a for a in data]
+
+    ##########HERE IS WHERE IT GETS MESSED UP
+ #   return_df = pd.DataFrame(data, columns = ['bo_year_rank','title','studio'])
+
+ #   return(return_df) 
 #dirtymovies_df = movie_scrape()
 #print(dirtymovies_df)
 
