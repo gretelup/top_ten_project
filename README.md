@@ -14,7 +14,7 @@ We used movies, from boxofficemjo, music (songs & albums) from Billboard and Ama
 
 Our final dataest model reflects the cleaned top 10 movies defined by dox office sales,  music defined as number of albums sold.  We used Monogodb vs SQL to load the databases into a collection and synced up to our html page. The reason we chose to use Mongodb over SQL is for it's faster performance features, such as the read/write scanning for handling data.   
 
-Steps to run the pipeline:
+## Steps to run the pipeline:
 
 *Systems requirements*  
 Chromedriver must be installeda nd Mongodb installed to local
