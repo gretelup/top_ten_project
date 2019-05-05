@@ -44,9 +44,11 @@ def movie_scrape():
     data=[np.nan if a =='na' else a for a in data]
 
     ##########HERE IS WHERE IT GETS MESSED UP
- #   return_df = pd.DataFrame(data, columns = ['bo_year_rank','title','studio'])
+    return_df = pd.DataFrame(data, columns = ['bo_year_rank','title','studio'])
 
- #   return(return_df) 
+    return(return_df)
+
+#print(return_df) 
 #dirtymovies_df = movie_scrape()
 #print(dirtymovies_df)
 
