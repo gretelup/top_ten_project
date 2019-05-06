@@ -28,7 +28,7 @@ We wanted to create a database that reflects entertainment in popular culture ov
 Each item is entered as a document in three different collections--movie, music album, and song--in a mongo database. Each document in the collection includes year, rank in that year, title, studio name/artist name, user rating, number of user reviews, critic rating, and number of critical reviews.
 
 The reason we chose to use Mongo over SQL is for it's faster performance features, such as the read/write scanning for handling data, and flexibility for adding additional data at a later date.
-# [Gretelnote: I feel like the above is a little weak, but I can't really think of anything better to say]
+# [Gretelnote: I feel like the above is a little weak, but I can't really think of anything better to say] .  MongoDB handles unstructured data and has integration with analytical tools such as Spark and Power BI.
 
 This database can be used to see what sorts of entertainment are popular and profitable over time and how both users and critics feel about them.
 # [Gretelnote: I feel like the above is a little weak and could be more robust]
@@ -88,7 +88,11 @@ For each movie, album, and song, we gathered rating information from Metacritic.
         * Dropped unnecessary columns and rows.
         * Converted dataframe into a list of dictionaries.
     * Music notebook (Mike):
-        * 
+	* Used requests module to get content from Billboard.com.
+        * Used Beautiful Soup to parse content.
+        * Filtered out unnecessary rows 
+        * Added timestamp to each record
+        * Created a list of dictionaries        * 
     * Metacritic notebook (Smita):
         * Takes a dictionary from the movie, album, or song list of dictionaries.
         * Used Splinter to create a browser object to gather content from associated metacritic page.
