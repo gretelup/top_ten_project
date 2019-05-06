@@ -9,7 +9,7 @@
 
 ## Summary 
 
-Our ETL project provides a pipline for entertainment fans to find the top ten movies, based on gross box office sales, and music--both top albums and top songs--based on number sold. Rating information from critics and users is also provided for each item. For example, a single record will show you that the movie Black Panther is ranked at #2 in 2018 based on box office gross with a a critic rating of [] out of 100 based on [] critical reviews and a user rating of [insert user rating] out of 10 based on [insert number of reviews].
+Our ETL project provides a pipline for entertainment fans to find the top ten movies, based on gross box office sales, and top albums--based on units sold. Rating information from critics and users is also provided for each item. For example, a single record will show you that the movie Black Panther is ranked at #2 in 2018 based on box office gross with a a critic rating of [] out of 100 based on [] critical reviews and a user rating of [insert user rating] out of 10 based on [insert number of reviews].
 #[Gretelnote: make sure to insert appropriate rating information in above and to change as appropriate if we decide not to include multiple years and critical review information]
 
 ## Steps to run the pipeline:
@@ -21,7 +21,7 @@ Our ETL project provides a pipline for entertainment fans to find the top ten mo
 
 ## Narrative
 
-We wanted to create a database that reflects entertainment in popular culture over time. We focused on music and movies, as those forms of entertainment create large amounts of revenue, and we included rating information to show both popular and critical opinions on entertainment culture.
+We wanted to create a database that reflects entertainment in popular culture over the last decade. We focused on music and movies, as those forms of entertainment create large amounts of revenue, and we included rating information to show both popular and critical opinions on entertainment culture.
 
 ## How to use the data
 
@@ -73,7 +73,7 @@ We gathered movie ranking data from Boxofficemojo.com, which reports box-office 
  
 We gathered music ranking data for albums and songs from Billboard.com, which reports popularity of music albums or artists in the music industry based on sales.
 
-For each movie, album, and song, we gathered rating information from Metacritic.com. Metacritic aggregates critical reviews for various types of entertainment and summarizes them into a single score from 0-100. It also provides a platform for users to provide ratings from 0-10 as well. We used this as it provides consistent review information across movies and music. Metacritic gathers data from multiple sources, which can be viewed at: [https://www.metacritic.com/faq#item12].
+For each movie and album we gathered rating information from Metacritic.com. Metacritic aggregates critical reviews for various types of entertainment and summarizes them into a single score from 0-100. It also provides a platform for users to provide ratings from 0-10 as well. We used this as it provides consistent review information across movies and music. Metacritic gathers data from multiple sources, which can be viewed at: [https://www.metacritic.com/faq#item12].
 
 ## Transformation Steps
 # GRETELNOTE- EVERYONE NEEDS TO UPDATE THE STEPS THEY USED; I used what I understand from Arjun's and Smita's script, but they need to be updated
