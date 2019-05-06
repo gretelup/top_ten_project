@@ -204,7 +204,7 @@ def metacritic_album_scraper(url):
         # Find review average from users and rating score from critics
         review_soup = soup.find_all("a", class_="metascore_anchor")
         user_rev_avg = float(review_soup[1].text)
-        critic_rev_score = int(review_soup[0].text)
+        critic_rev_score = float(review_soup[0].text)
 
         # Find number of user reviews
         count_soup = soup.find("div", class_="module reviews_module user_reviews_module")
