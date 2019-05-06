@@ -20,61 +20,65 @@ with open("config.yml", "r") as ymlpath:
 # ## FOR TESTING PURPOSES: For windows, un-comment cell below:
 # executable_path = {"executable_path": "chromedriver"}
 
+
 def movie_scraper(year):
-    
-    """Scrapes www.boxofficemojo.com for the top ten movies for 2018 based on gross box-office amount.
-    Returns a list of dictionaries with year, rank, movie title, and studio
+
+    """Scrapes www.boxofficemojo.com for the top ten movies for given year
+    based on gross box-office amount.
+    Returns a list of dictionaries with rank, movie title, studio, and year.
     """
-    
+
     movie_df_list = []
-    
+
     # Get webpage data using requests
-    response = requests.get("https://www.boxofficemojo.com/yearly/chart/?view2=worldwide&yr=%s&p=.htm" % year)
-    
-    #Parse HTML using Beautiful Soup
-    soup = bs(response.text,"html.parser")
+    response = requests.get("https://www.boxofficemojo.com/yearly/chart/?\
+        view2=worldwide&yr=%s&p=.htm" % year)
+
+    # Parse HTML using Beautiful Soup
+    soup = bs(response.text, "html.parser")
 
     # Find location of necessary data in soup object
     soup_tables = soup.find_all("table")
     soup_elements = soup_tables[3].find_all("td")
 
-    # For each td element, find and store data in a list 
+    # For each td element, find and store data in a list
     movie_data = []
 
     for i in soup_elements:
         if i.find("a"):
-            movie_data.append(i.find("a").contents[0]) 
+            movie_data.append(i.find("a").contents[0])
         elif i.find("font"):
             movie_data.append(i.find("font").contents[0])
         elif i.find("b"):
             movie_data.append(i.find("b").contents[0])
 
-    ### Clean Data:
+    # Clean Data:
 
     # Remove extraneous tags
-    movie_data = [a.contents[0] if type(a)!=bs4.element.NavigableString else a for a in movie_data]
+    movie_data = [a.contents[0] if type(a) != bs4.element.NavigableString 
+                  else a for a in movie_data]
 
     # Strip special characters
     movie_data = [re.sub("[^A-Za-z0-9-. ]+", "", a) for a in movie_data]
 
     # Fill NaNs
-    movie_data = [np.nan if a =="na" else a for a in movie_data]
+    movie_data = [np.nan if a == "na" else a for a in movie_data]
 
     # Set first 6 elements as column headers
     to_df = movie_data[6:]
 
     # Define the column names 
-    columns = ["rank", "title", "studio", "worldwide-gross", "domestic-gross", "domestic-pct", "overseas-gross", "overseas-pct"]
+    columns = ["rank", "title", "studio", "", "", "", "", ""]
 
     # Convert to dataframe
-    nrow = int(len(to_df)/len(columns)) 
-    dirty_movies_df = pd.DataFrame(np.array(to_df).reshape(nrow,8), columns=columns)
+    nrow = int(len(to_df) / len(columns)) 
+    dirty_movies_df = pd.DataFrame(np.array(to_df).reshape(nrow, 8),  columns=columns)
 
     # Clean dataframe
-    dirty_movies_df = dirty_movies_df.iloc[: , 0:3]
+    dirty_movies_df = dirty_movies_df.iloc[:, 0:3]
     dirty_movies_df["rank"] = dirty_movies_df["rank"].apply(int)
     dirty_movies_df["year"] = year
-    movies_df = dirty_movies_df.loc[dirty_movies_df["rank"] <=10,:]
+    movies_df = dirty_movies_df.loc[dirty_movies_df["rank"] <= 10, :]
     
     # Convert dataframe to list of dictionaries
     movie_dicts = movies_df.to_dict(orient="records") 
@@ -83,9 +87,12 @@ def movie_scraper(year):
     
     return (movie_dicts) 
 
+
 def process_chart(data, year):
     
-    """ Use the Python package for parsing HTML.  Calls and receives HTML as strings to process for artists."""
+    """ Use the Python package for parsing HTML.  
+    Calls and receives HTML as strings to process for artists.
+    """
     
     # Create soup object to parse the html
     soup = bs(data, "html5lib")
@@ -105,21 +112,25 @@ def process_chart(data, year):
     
     return(list_albums)
 
+
 def album_scraper(year):
 
-    """Scrapes www.billboard.com for the top ten albums for 2008-2018 based on gross box-office amount.
-    Returns a list of dictionaries with year, album title, and artist name"""
+    """Scrapes www.billboard.com for the top ten albums for given year
+    based on album revenue.
+    Returns a list of dictionaries with rank, album title, artist name,
+    and year.
+    """
     
     all_albums = []
 
     # Use requests library to get HTML
     url = requests.get("https://www.billboard.com/charts/year-end/"+str(year)+"/top-billboard-200-albums")
     
-    # Parse content and create list of dictionaries using process_chart function
+    # Parse content and create list of dictionaries
     data = url.content
     all_albums = process_chart(data, year)
     
-    # Filter just the top 10 albums and insert into final list of dictionaries
+    # Create dictionary with just top 10 albums
     album_dicts = []
     for album in all_albums:
         if (album["rank"] < 11):
@@ -129,20 +140,23 @@ def album_scraper(year):
     
     return(album_dicts)
 
+
 def metacritic_movie_scraper(url):
 
     """Scrapes given metacritic.com url for the movie review information.
-    Returns a dictionary with number of user reviews, average user review, number of critic reviews, and critic score"""
-    
+    Returns a dictionary with number of user reviews, average user review,
+    number of critic reviews, and critic score
+    """
+
     # Use splinter to get website information
     with Browser("chrome", **executable_path, headless=True) as browser:
         browser.visit(url)
-        
+
         # Create a timestamp
         now = datetime.now()
         scrape_time = now.strftime("%Y-%m-%d %H:%M:%S")
-        
-        #Use beautiful soup to parse html
+
+        # Use beautiful soup to parse html
         soup = bs(browser.html, "html.parser")
 
     try:
@@ -156,21 +170,23 @@ def metacritic_movie_scraper(url):
         user_rev_avg = float(review_soup[1].text)
         critic_rev_score = int(review_soup[0].text)
 
-    # If page does note have review information, population review information with None values
+    # If no review information available, set review values to None
     except (IndexError, AttributeError):
         user_rev_count = None
         critic_rev_count = None
         user_rev_avg = None
-        critic_rev_score = None    
-    
-    # Return dictionary of book information
+        critic_rev_score = None
+
+    # Return dictionary of movie information
     movie_dict = {"user_rev_count": user_rev_count, "user_rev_avg": user_rev_avg, "critic_rev_count": critic_rev_count, "critic_rev_score": critic_rev_score, "scrape_time": scrape_time}
     return(movie_dict)
+
 
 def metacritic_album_scraper(url):
 
     """Scrapes given metacritic.com url for the album review information.
-    Returns a dictionary with number of user reviews, average user review, number of critic reviews, and critic score
+    Returns a dictionary with number of user reviews, average user review
+    number of critic reviews, and critic score.
     """
     
     # Use splinter to get website information
@@ -181,7 +197,7 @@ def metacritic_album_scraper(url):
         now = datetime.now()
         scrape_time = now.strftime("%Y-%m-%d %H:%M:%S")
         
-        #Use beautiful soup to parse html
+        # Use beautiful soup to parse html
         soup = bs(browser.html, "html.parser")
     
     try:
@@ -191,31 +207,38 @@ def metacritic_album_scraper(url):
         critic_rev_score = int(review_soup[0].text)
 
         # Find number of user reviews
-        count_soup = soup.find("div",class_="module reviews_module user_reviews_module")
-        user_rev_count_string = count_soup.find("span",class_="count")
+        count_soup = soup.find("div", class_="module reviews_module user_reviews_module")
+        user_rev_count_string = count_soup.find("span", class_="count")
         user_rev_count = int(user_rev_count_string.text)
 
         # Find number of critic reviews
-        critic_rev_count_string = count_soup.find("span",class_="count")
+        critic_rev_count_string = count_soup.find("span", class_="count")
         critic_rev_count = int(critic_rev_count_string.text)
     
-    # If page does note have review information, population review information with None values
-    except (IndexError, AttributeError) :
+    # If no review information available, set review values to None
+    except (IndexError, AttributeError):
         user_rev_count = None
         critic_rev_count = None
         user_rev_avg = None
         critic_rev_score = None
 
     # Return dictionary of album information
-    album_dict = {"user_rev_count": user_rev_count, "user_rev_avg": user_rev_avg, "critic_rev_count": critic_rev_count, "critic_rev_score": critic_rev_score, "scrape_time": scrape_time}
+    album_dict = {"user_rev_count": user_rev_count, 
+                  "user_rev_avg": user_rev_avg, 
+                  "critic_rev_count": critic_rev_count, 
+                  "critic_rev_score": critic_rev_score, 
+                  "scrape_time": scrape_time}
   
     return (album_dict)
+
 
 def make_url_string(string):
 
     """Takes a string and returns a string to be inserted in url"""
     
-    url_string = string.replace("(", "").replace(")", "").replace("÷", "").replace("&", "").replace("-", "").replace("  ", " ").replace(" ", "-").lower()
+    url_string = string.replace("(", "").replace(")", "").replace("÷", "")\
+        .replace("&", "").replace("-", "").replace("  ", " ")\
+        .replace(" ", "-").lower()
     
     if url_string.startswith("-"):
         url_string = url_string[1:]
@@ -225,10 +248,12 @@ def make_url_string(string):
 
     return(url_string)
 
+
 def valid_year(year):
     
-    """Takes a string "year" as a parameter. Returns boolean True if it is a valid year from 2008-2018.
-    Prints error message and returns boolean False if it is not.
+    """Takes a string "year" as a parameter. 
+    Returns True if it is a valid year from 2008-2018.
+    Prints error message and returns False if not.
     """
     
     if not (str.isdigit(year)):
@@ -239,6 +264,7 @@ def valid_year(year):
         return(False)
     else:
         return(True)
+
 
 def user_query():
 
@@ -253,20 +279,21 @@ def user_query():
     year = int(year)
     return(year)
 ######################################################################
-
 # THIS IS THE MAIN FUNCTION
 # 
-# ## Run below multiple times
-# ## Try entering non-number years, years out of range, years you have already gotten numbers for
-# ## After running for year(s) within appropriate range, do an audit by randomly checking the data points using mongo compass
+# Run below multiple times
+# Try entering non-number years, years out of range, 
+# years you have already gotten numbers for
+# After running for year(s) within appropriate range, 
+# do an audit by randomly checking the data points using mongo compass
 # 
 ######################################################################
 
-### Main Function
 
 # Connect to mongo using pymongo to create local database
 conn = "mongodb://localhost:27017"
 client = pymongo.MongoClient(conn)
+
 
 # Connect to Top 10 database
 db = client.top_10_db
@@ -287,31 +314,32 @@ while (movie_doc is not None):
 
 print(f"Scraping data for year {year}...")
 
-# Scrape BoxOfficeMojo and Billboard Music for a list of dictionaries of the top 10 movies for 2008-2018
+# Scrape BoxOfficeMojo and Billboard Music for top 10 movies of given year
 movie_BOM_dicts = movie_scraper(year)
 album_Bill_dicts = album_scraper(year)
     
-# Add review information from Metacritic to new list of dictionaries for top movies
+# Add review information from Metacritic to movies
 movie_dicts = []
 print("Scraping movie reviews...")
 for movie in movie_BOM_dicts:
     
-    # Create query url from dictionary values
+    # Create query url
     movie_query = make_url_string(movie["title"])
     movie_url = f"https://www.metacritic.com/movie/{movie_query}/details"
 
-    # Add review information to dictionary
+    # Add review information to movie dictionary
     movie_dicts.append({**movie, **metacritic_movie_scraper(movie_url)})
     print(f"{movie['title']} scraped.")
     
-# Add review information from Metacritic to new list of dictionaries for top music albums
+# Add review information from Metacritic to music
 album_dicts = []
 print("Scraping album reviews...")
 for album in album_Bill_dicts:
     # Create query url from dictionary values
     title_query = make_url_string(album["title"])
     artist_query = make_url_string(album["artist"])
-    album_url = f"https://www.metacritic.com/music/{title_query}/{artist_query}"
+    album_url = f"https://www.metacritic.com/music/{title_query}\
+        {artist_query}"
     
     # Add review information to dictionary
     album_dicts.append({**album, **metacritic_album_scraper(album_url)})
