@@ -23,9 +23,10 @@ with open("config.yml", "r") as ymlpath:
 def movie_scraper(year):
     
     """Scrapes www.boxofficemojo.com for the top ten movies for 2018 based on gross box-office amount.
-    Returns a list of dictionaries with year, rank, movie title, and studio"""
+    Returns a list of dictionaries with year, rank, movie title, and studio
+    """
     
-    movie_df_list=[]
+    movie_df_list = []
     
     # Get webpage data using requests
     response = requests.get("https://www.boxofficemojo.com/yearly/chart/?view2=worldwide&yr=%s&p=.htm" % year)
@@ -38,15 +39,15 @@ def movie_scraper(year):
     soup_elements = soup_tables[3].find_all("td")
 
     # For each td element, find and store data in a list 
-    movie_data=[]
+    movie_data = []
 
     for i in soup_elements:
-        if i.find("a")!=None:
+        if i.find("a"):
             movie_data.append(i.find("a").contents[0]) 
-        elif i.find("font")!=None:
+        elif i.find("font"):
             movie_data.append(i.find("font").contents[0])
-        elif i.find("b")!=None:
-            movie_dataappend(i.find("b").contents[0])
+        elif i.find("b"):
+            movie_data.append(i.find("b").contents[0])
 
     ### Clean Data:
 
@@ -63,18 +64,16 @@ def movie_scraper(year):
     to_df = movie_data[6:]
 
     # Define the column names 
-    columns = ["rank","title","studio","worldwide-gross","domestic-gross","domestic-pct","overseas-gross","overseas-pct"]
+    columns = ["rank", "title", "studio", "worldwide-gross", "domestic-gross", "domestic-pct", "overseas-gross", "overseas-pct"]
 
     # Convert to dataframe
     nrow = int(len(to_df)/len(columns)) 
-    dirty_movies_df = pd.DataFrame(np.array(to_df).reshape(nrow,8),columns=columns)
-    
-    # Add year to dataframe
-    dirty_movies_df["year"] = year
+    dirty_movies_df = pd.DataFrame(np.array(to_df).reshape(nrow,8), columns=columns)
 
-    # Remove unnecessary columns
+    # Clean dataframe
     dirty_movies_df = dirty_movies_df.iloc[: , 0:3]
     dirty_movies_df["rank"] = dirty_movies_df["rank"].apply(int)
+    dirty_movies_df["year"] = year
     movies_df = dirty_movies_df.loc[dirty_movies_df["rank"] <=10,:]
     
     # Convert dataframe to list of dictionaries
@@ -89,7 +88,7 @@ def process_chart(data, year):
     """ Use the Python package for parsing HTML.  Calls and receives HTML as strings to process for artists."""
     
     # Create soup object to parse the html
-    soup = bs(data,"html5lib")
+    soup = bs(data, "html5lib")
     
     # Create a list to return
     list_albums = []
@@ -102,7 +101,7 @@ def process_chart(data, year):
         rank = int(item.select_one(".ye-chart-item__rank").string.strip())
         title = item.select_one(".ye-chart-item__title").string.strip()
         artist = item.select_one(".ye-chart-item__artist").text.replace("\n", "")
-        list_albums.append({"rank":rank, "title":title, "artist":artist,"year":year})
+        list_albums.append({"rank": rank, "title": title, "artist": artist, "year": year})
     
     return(list_albums)
 
@@ -118,7 +117,7 @@ def album_scraper(year):
     
     # Parse content and create list of dictionaries using process_chart function
     data = url.content
-    all_albums = process_chart(data,year)
+    all_albums = process_chart(data, year)
     
     # Filter just the top 10 albums and insert into final list of dictionaries
     album_dicts = []
@@ -171,7 +170,8 @@ def metacritic_movie_scraper(url):
 def metacritic_album_scraper(url):
 
     """Scrapes given metacritic.com url for the album review information.
-    Returns a dictionary with number of user reviews, average user review, number of critic reviews, and critic score"""
+    Returns a dictionary with number of user reviews, average user review, number of critic reviews, and critic score
+    """
     
     # Use splinter to get website information
     with Browser("chrome", **executable_path, headless=True) as browser:
@@ -212,9 +212,10 @@ def metacritic_album_scraper(url):
     return (album_dict)
 
 def make_url_string(string):
+
     """Takes a string and returns a string to be inserted in url"""
     
-    url_string = string.replace("(", "").replace(")","").replace("÷", "").replace("&", "").replace("-", "").    replace("  ", " ").replace(" ", "-").lower()
+    url_string = string.replace("(", "").replace(")", "").replace("÷", "").replace("&", "").replace("-", "").replace("  ", " ").replace(" ", "-").lower()
     
     if url_string.startswith("-"):
         url_string = url_string[1:]
@@ -227,24 +228,26 @@ def make_url_string(string):
 def valid_year(year):
     
     """Takes a string "year" as a parameter. Returns boolean True if it is a valid year from 2008-2018.
-    Prints error message and returns boolean False if it is not."""
+    Prints error message and returns boolean False if it is not.
+    """
     
-    if (str.isdigit(year) is False):
+    if not (str.isdigit(year)):
         print(f"Oops! {year} is not a number!")
         return(False)
-    elif (int(year)<2008 or int(year)>2018):
+    elif (int(year) < 2008 or int(year) > 2018):
         print(f"Oops! {year} is not a year between 2008-2018!")
         return(False)
     else:
         return(True)
 
 def user_query():
+
     """Queries user for year they would like to scrape"""
 
     year = (input("Please enter the year from 2008-2018 you would like to get data for: "))
 
     # Check to make sure year is valid
-    while(valid_year(year) is False):
+    while not (valid_year(year)):
         year = (input("Please enter the year from 2008-2018 you would like to get data for: "))
 
     year = int(year)
@@ -277,7 +280,7 @@ year = user_query()
 
 # Check to see if year has already been scraped
 movie_doc = db.movies.find_one({"year": year})
-while (movie_doc != None):
+while (movie_doc is not None):
     print(f"Data already scraped for {year}.")
     year = user_query()
     movie_doc = db.movies.find_one({"year": year})
@@ -290,6 +293,7 @@ album_Bill_dicts = album_scraper(year)
     
 # Add review information from Metacritic to new list of dictionaries for top movies
 movie_dicts = []
+print("Scraping movie reviews...")
 for movie in movie_BOM_dicts:
     
     # Create query url from dictionary values
@@ -302,6 +306,7 @@ for movie in movie_BOM_dicts:
     
 # Add review information from Metacritic to new list of dictionaries for top music albums
 album_dicts = []
+print("Scraping album reviews...")
 for album in album_Bill_dicts:
     # Create query url from dictionary values
     title_query = make_url_string(album["title"])
