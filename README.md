@@ -9,7 +9,7 @@
 
 ## Summary 
 
-Our ETL project provides a pipeline for entertainment fans to find the top ten movies, based on gross box office sales, and music albums based on number sold. The user can query based on year for 2008-2018. Rating information from critics and users is also provided for each item. For example, a single record will show you that the movie Black Panther from BV studio was ranked at #2 in 2018 based on box office gross with a user review average of 6.5 out of 10 and a critic score of 88 out of 100 based on 55 reviews. A timestamp reflecting when reviews were scraped is included.
+Our ETL project provides a pipeline for entertainment fans to find the top ten movies for a given year between 2008-2018 based on gross box office sales and music albums based on number sold. This information is then matched with review and rating information. For example, a single record will show you that the movie Black Panther from BV studio was ranked at #2 in 2018 based on box office sales with a user review average of 6.5 out of 10 based on 2829 reviews and a critic score of 88 out of 100 based on 55 reviews on [Metacritic](https://www.metacritic.com/). A timestamp reflecting when reviews were scraped is included.
 
 ## System Requirements
 * Chrome Web Browser
@@ -26,11 +26,11 @@ Our ETL project provides a pipeline for entertainment fans to find the top ten m
 
 ## Steps to run the pipeline:
 
-1. If running on MacOS, no configuration changes are needed. To run on Windows, change the chromedriver path in the config.yml file.
+1. If running on MacOS, no configuration changes are needed. To run on Windows, change the chromedriver path in `config.yml`.
 2. Run mongod to open a local connection.
 3. Run `top_ten.py`.
-4. At the prompt, enter the year between 2008-2018 you would like to scrape data for.
-5. A mongo database for the provided year will now be available on a local connection. 
+4. At the prompt, enter the year between 2008-2018 to scrape.
+5. After finished executing, a mongo database for the provided year will be available on a local connection.
 
 ## Narrative
 
@@ -50,7 +50,7 @@ We gathered movie ranking data from [BoxOfficeMojo](https://www.boxofficemojo.co
  
 We gathered music ranking data for albums from [billboard](https://www.billboard.com/), which reports popularity of music albums and songs based on sales.
 
-For each movie and album, we gathered rating information from [Metacritic](https://www.metacritic.com/). Metacritic aggregates critical reviews for various types of entertainment and summarizes them into a single score, called a metascore, from 0-100. Information on how score is calculated can be viewed at [About Metascores](https://www.metacritic.com/about-metascores). It also provides a platform for users to provide ratings from 0-10. We decided to use metacritic as it provides consistent review information across movies and music. Metacritic gathers data from multiple sources, which can be viewed at [Metacritic FAQ](https://www.metacritic.com/faq#item12).
+For each movie and album, we gathered rating information from [Metacritic](https://www.metacritic.com/). We decided to use metacritic as it provides consistent review information across movies and music. It provides a platform for users to provide ratings from 0-10. It also aggregates critical reviews for and summarizes them into a single score, called a metascore, that ranges from 0-100. Information on how score is calculated can be viewed at [About Metascores](https://www.metacritic.com/about-metascores). Metacritic gathers data from multiple sources, which can be viewed at [Metacritic FAQ](https://www.metacritic.com/faq#item12).
 
 ## Schema
 
@@ -112,7 +112,7 @@ top_10_db.albums:
     * Master script (Gretel):
         * Made necessary configurations.
         * Created local connection to MongoDB.
-        * Used pymongo to create a new top_ten_db mongo database and movies and albums collections.
+        * Used pymongo to create a new `top_ten_db` mongo database and `movies` and `albums` collections.
         * Created user prompt for year.
         * Checked if information for provided year was already entered into database.
         * Invoked each script to gather data, resulting in two lists of dictionaries.
@@ -120,4 +120,16 @@ top_10_db.albums:
         * Inserted print statements with scraping progress.
     * YAML configuration file (Gretel):
         * Created configuration file specifying path used to connect to Chromedriver.
-* After extensive testing, we exported the final script notebook into a single python script called top_ten.py.
+* After extensive testing, we exported the final script notebook into a single python script called `top_ten.py`.
+
+## Exception and Error Handling
+
+Error handling increases the robustness of our code by guarding against potential failures that would cause the program to exit in an uncontrolled fashion.  The scraping script is written to execute with certain condition holding at run-time, but if these conditions do not hold, our scraping might not return and instead return an error. Since we are dealing with dynamic pages, they may change at any time, resulting in these errors.
+
+We applied the following runtime exception handeling:
+* `IndexError` and `AttributeError`: within the review scraping functions `metacritic_movie_scraper` and `metacritic_album_scraper`, this error is returned when the page we seek to parse does not exist or when html tags are not appropriately assigned.
+    * When this exception occurs, we populate the following with null values:
+        * `user_rev_count`
+        * `critic_rev_count`
+        * `user_rev_avg`
+        * `critic_rev_score`
