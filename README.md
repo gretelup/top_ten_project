@@ -38,22 +38,32 @@ We wanted to create a database that reflects entertainment in popular culture ov
 
 ## How to use the data
 
-Each item is entered as a document in two different collections--movie and music album--in a mongo database. Each document in the collection includes year, rank in that year, title, studio name/artist name, user rating, number of user reviews, critic rating, number of critical reviews, and the time the review data was scraped. If review information was not available, review values were populated with null values.
+Each item is entered as a document in two different collections--movie and music album--in a mongo database. Each document in the collection includes year, rank in that year, title, studio name/artist name, user rating, number of user reviews, critic score, number of critical reviews, and the time the review data was scraped. If review information was not available, review values were populated with null values.
 
-The reason we chose to use Mongo over SQL is for it's faster performance features, such as the read/write scanning for handling data, and flexibility for adding additional data at a later date. MongoDB handles unstructured data and has integration with analytical tools such as Spark and Power BI.
+The reason we chose to use Mongo over SQL is for its faster performance features, such as the read/write scanning for handling data, and flexibility for adding additional data at a later date. MongoDB benefits include handling unstructured data and integrating with analytical tools such as Spark and BI.
+
+This database can be used to see what sorts of entertainment are popular and profitable over time and how both users and critics feel about them.
+
+## Data Sources
+
+We gathered movie ranking data from [BoxOfficeMojo](https://www.boxofficemojo.com/), which reports box-office revenue. It is affiliated with IMDb and is available for general public use.
+ 
+We gathered music ranking data for albums from [billboard](https://www.billboard.com/), which reports popularity of music albums and songs based on sales.
+
+For each movie and album, we gathered rating information from [Metacritic](https://www.metacritic.com/). Metacritic aggregates critical reviews for various types of entertainment and summarizes them into a single score, called a metascore, from 0-100. Information on how score is calculated can be viewed at: [About Metascores](https://www.metacritic.com/about-metascores). It also provides a platform for users to provide ratings from 0-10. We decided to use metacritic as it provides consistent review information across movies and music. Metacritic gathers data from multiple sources, which can be viewed at: [Metacritic FAQ](https://www.metacritic.com/faq#item12).
 
 ## Schema
 
 ```
 top_10_db.movies:
 {
-	_id: int # Unique ObjectID assigned by mongodb
+    _id: int # Unique ObjectID assigned by mongodb
     rank: int # Rank of movie in given year
     title: string # Title of movie
-	studio: string # Studio that produced movie
+    studio: string # Studio that produced movie
     year: int # Year movie was released
     user_rev_count: int # Number of user reviews
-	user_rev_avg: float # Average user review (on scale 0-10)
+    user_rev_avg: float # Average user review (on scale 0-10)
     critic_rev_count: int # Number of critical reviews score is based on
     critic_rev_score: float # Critic score (on scale 0-100)
     scrape_time: string # Timestamp of when review data was scraped from metacritic
@@ -61,26 +71,18 @@ top_10_db.movies:
 
 top_10_db.albums:
 {
-	_id: int # Unique ObjectID assigned by mongodb
+    _id: int # Unique ObjectID assigned by mongodb
     rank: int # Rank of album in given year
     title: string # Title of album
     artist: string # Album's artist
-	year: int # Year movie was released
+    year: int # Year movie was released
     user_rev_count: int # Number of user reviews
-	user_rev_avg: float # Average user review (on scale 0-10)
+    user_rev_avg: float # Average user review (on scale 0-10)
     critic_rev_count: int # Number of critical reviews score is based on
     critic_rev_score: float # Critic score (on scale 0-100)
     scrape_time: string # Timestamp of when review data was scraped from metacritic
 {
 ```
-
-## Data Sources
-
-We gathered movie ranking data from Boxofficemojo.com, which reports box-office revenue. It is affiliated with IMDb and is available for general public use.
- 
-We gathered music ranking data for albums from Billboard.com, which reports popularity of music albums and songs based on sales.
-
-For each movie and album, we gathered rating information from Metacritic.com. Metacritic aggregates critical reviews for various types of entertainment and summarizes them into a single score, called a metascore, from 0-100. Information on how score is calculated can be viewed at: [https://www.metacritic.com/about-metascores]. It also provides a platform for users to provide ratings from 0-10. We decided to use metacritic as it provides consistent review information across movies and music. Metacritic gathers data from multiple sources, which can be viewed at: [https://www.metacritic.com/faq#item12].
 
 ## Transformation Steps
 
@@ -97,7 +99,7 @@ For each movie and album, we gathered rating information from Metacritic.com. Me
     * Album scraping script (Mike):
 	    * Used requests module to get content from Billboard.com.
         * Used Beautiful Soup to parse content.
-        * Filtered out unnecessary rows. 
+        * Filtered out unnecessary rows based on rank.
         * Created a list of dictionaries.
     * Metacritic scraping script (Smita):
         * For each movie/album dictionary in the provided list of dictionaries from the scraping scripts:
@@ -114,7 +116,7 @@ For each movie and album, we gathered rating information from Metacritic.com. Me
         * Created user prompt for year.
         * Checked if information for provided year was already entered into database.
         * Invoked each script to gather data, resulting in two lists of dictionaries.
-        * Inserted a document into associated collection from each dictionary in the movies and albums list.
+        * Inserted a document in associated collection from each dictionary in movies and albums
         * Inserted print statements with scraping progress.
     * YAML configuration file (Gretel):
         * Created configuration file specifying path used to connect to Chromedriver.
