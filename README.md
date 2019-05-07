@@ -9,14 +9,14 @@
 
 ## Summary 
 
-Our ETL project provides a pipline for entertainment fans to find the top ten movies, based on gross box office sales, and music albums based on number sold. The user can query based on year for 2008-2018. Rating information from critics and users is also provided for each item. For example, a single record will show you that the movie Black Panther from BV studio is ranked at #2 in 2018 based on box office gross with a user review average of 6.5 out of 10 and a critic score of 88 out of 100 based on 55 reviews. A timestamp reflecting when reviews were scraped is included.
+Our ETL project provides a pipeline for entertainment fans to find the top ten movies, based on gross box office sales, and music albums based on number sold. The user can query based on year for 2008-2018. Rating information from critics and users is also provided for each item. For example, a single record will show you that the movie Black Panther from BV studio was ranked at #2 in 2018 based on box office gross with a user review average of 6.5 out of 10 and a critic score of 88 out of 100 based on 55 reviews. A timestamp reflecting when reviews were scraped is included.
 
 ## System Requirements
-* Chrome Web Browsr
+* Chrome Web Browser
 * Chromedriver
 * MongoDB
 * Python environment running Python 3.7 with the following installations:
-    * beatufiulsoup4
+    * beautifulsoup4
     * numpy
     * pandas
     * pymongo
@@ -50,37 +50,37 @@ We gathered movie ranking data from [BoxOfficeMojo](https://www.boxofficemojo.co
  
 We gathered music ranking data for albums from [billboard](https://www.billboard.com/), which reports popularity of music albums and songs based on sales.
 
-For each movie and album, we gathered rating information from [Metacritic](https://www.metacritic.com/). Metacritic aggregates critical reviews for various types of entertainment and summarizes them into a single score, called a metascore, from 0-100. Information on how score is calculated can be viewed at: [About Metascores](https://www.metacritic.com/about-metascores). It also provides a platform for users to provide ratings from 0-10. We decided to use metacritic as it provides consistent review information across movies and music. Metacritic gathers data from multiple sources, which can be viewed at: [Metacritic FAQ](https://www.metacritic.com/faq#item12).
+For each movie and album, we gathered rating information from [Metacritic](https://www.metacritic.com/). Metacritic aggregates critical reviews for various types of entertainment and summarizes them into a single score, called a metascore, from 0-100. Information on how score is calculated can be viewed at [About Metascores](https://www.metacritic.com/about-metascores). It also provides a platform for users to provide ratings from 0-10. We decided to use metacritic as it provides consistent review information across movies and music. Metacritic gathers data from multiple sources, which can be viewed at [Metacritic FAQ](https://www.metacritic.com/faq#item12).
 
 ## Schema
 
 ```
 top_10_db.movies:
 {
-    _id: int # Unique ObjectID assigned by mongodb
-    rank: int # Rank of movie in given year
-    title: string # Title of movie
-    studio: string # Studio that produced movie
-    year: int # Year movie was released
-    user_rev_count: int # Number of user reviews
-    user_rev_avg: float # Average user review (on scale 0-10)
-    critic_rev_count: int # Number of critical reviews score is based on
-    critic_rev_score: float # Critic score (on scale 0-100)
-    scrape_time: string # Timestamp of when review data was scraped from metacritic
+    _id: int                # Unique ObjectID assigned by mongodb
+    rank: int               # Rank of movie in given year
+    title: string           # Title of movie
+    studio: string          # Production studio
+    year: int               # Year of ranking
+    user_rev_count: int     # Number of user reviews
+    user_rev_avg: float     # Average user review (on scale 0-10)
+    critic_rev_count: int   # Number of critical reviews
+    critic_rev_score:float  # Critic score (on scale 0-100)
+    scrape_time: string     # Timestamp of metacritic scrape
 }
 
 top_10_db.albums:
 {
-    _id: int # Unique ObjectID assigned by mongodb
-    rank: int # Rank of album in given year
-    title: string # Title of album
-    artist: string # Album's artist
-    year: int # Year movie was released
-    user_rev_count: int # Number of user reviews
-    user_rev_avg: float # Average user review (on scale 0-10)
-    critic_rev_count: int # Number of critical reviews score is based on
+    _id: int                # Unique ObjectID assigned by mongodb
+    rank: int               # Rank of album in given year
+    title: string           # Title of album
+    artist: string          # Album's artist
+    year: int               # Year of ranking
+    user_rev_count: int     # Number of user reviews
+    user_rev_avg: float     # Average user review (on scale 0-10)
+    critic_rev_count: int   # Number of critical reviews
     critic_rev_score: float # Critic score (on scale 0-100)
-    scrape_time: string # Timestamp of when review data was scraped from metacritic
+    scrape_time: string     # Timestamp of metacritic scrape
 {
 ```
 
@@ -103,8 +103,8 @@ top_10_db.albums:
         * Created a list of dictionaries.
     * Metacritic scraping script (Smita):
         * For each movie/album dictionary in the provided list of dictionaries from the scraping scripts:
-            * Created a url based on provided movie/album data.
-            * Used Splinter to create a browser object for that url to gather content from associated metacritic page.
+            * Created a URL based on provided movie/album data.
+            * Used Splinter to create a browser object for that URL to gather content from associated metacritic page.
             * Used Beautiful Soup to parse content.
             * If review information was unavailable, populated review variables with null values.
             * Created timestamp reflecting time page was scraped.
