@@ -128,7 +128,7 @@ Error handling increases the robustness of our code by guarding against potentia
 
 We applied the following runtime exception handeling:
 * `IndexError` and `AttributeError`: within the review scraping functions `metacritic_movie_scraper` and `metacritic_album_scraper`, this error is returned when the page we seek to parse does not exist or when html tags are not appropriately assigned.
-    * When this exception occurs, we populate the following with null values:
+    * When this exception occurs, we populate the following with null values only for that perticular movie's/album's review and scores:
         * `user_rev_count`
         * `critic_rev_count`
         * `user_rev_avg`
