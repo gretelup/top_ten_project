@@ -25,10 +25,10 @@ We wanted to create a database that reflects entertainment in popular culture ov
 
 ## How to use the data
 
-Each item is entered as a document in three different collections--movie, music album, and song--in a mongo database. Each document in the collection includes year, rank in that year, title, studio name/artist name, user rating, number of user reviews, critic rating, and number of critical reviews.
+Each item is entered as a document in different collections--movie and music album--in a mongo database. Each document in the collection includes year, rank in that year, title, studio name/artist name, user rating, number of user reviews, critic rating, and number of critical reviews.
 
 The reason we chose to use Mongo over SQL is for it's faster performance features, such as the read/write scanning for handling data, and flexibility for adding additional data at a later date.
-# [Gretelnote: I feel like the above is a little weak, but I can't really think of anything better to say] .  MongoDB handles unstructured data and has integration with analytical tools such as Spark and Power BI.
+# [Gretelnote: MongoDB benefits include handling unstructured data and integrating with analytical tools such as Spark and BI.
 
 This database can be used to see what sorts of entertainment are popular and profitable over time and how both users and critics feel about them.
 # [Gretelnote: I feel like the above is a little weak and could be more robust]
@@ -55,23 +55,13 @@ top_10_db.albums:
 	etc.
 {
 
-top_10_db.songs:
-{
-	_id: int # unique ObjectID assigned by mongodb
-	song_year: int # Year album was released
-	rank: int # Rank of song
-	song_title: string # Title of movie
-	etc.
-{
-```
-
 
 
 ## Data Sources
 
 We gathered movie ranking data from Boxofficemojo.com, which reports box-office revenue. It is affiliated with IMDb and is available for general public use.
  
-We gathered music ranking data for albums and songs from Billboard.com, which reports popularity of music albums or artists in the music industry based on sales.
+We gathered music ranking data for albums from Billboard.com, which reports popularity of music albums in the music industry based on sales.
 
 For each movie and album we gathered rating information from Metacritic.com. Metacritic aggregates critical reviews for various types of entertainment and summarizes them into a single score from 0-100. It also provides a platform for users to provide ratings from 0-10 as well. We used this as it provides consistent review information across movies and music. Metacritic gathers data from multiple sources, which can be viewed at: [https://www.metacritic.com/faq#item12].
 
@@ -90,7 +80,7 @@ For each movie and album we gathered rating information from Metacritic.com. Met
     * Music notebook (Mike):
 	* Used requests module to get content from Billboard.com.
         * Used Beautiful Soup to parse content.
-        * Filtered out unnecessary rows 
+        * Filtered out unnecessary rows based on rank
         * Added timestamp to each record
         * Created a list of dictionaries        * 
     * Metacritic notebook (Smita):
@@ -105,6 +95,6 @@ For each movie and album we gathered rating information from Metacritic.com. Met
             * Used metacritic functions to add rating information to each dictionary in the lists created by the previous functions.
         * After creating a finalized list of dictionaries for movies, albums, and songs, opened a connection to mongodb.
         * Used pymongo to create a new top_ten_db mongo database locally.
-        * Created a collection for movies, albums, and songs.
-        * Inserted a document in associated collection from each dictionary in the movies, albums, and songs list.
+        * Created a collection for movies and albums
+        * Inserted a document in associated collection from each dictionary in movies and albums
 * After extensive testing, we exported the final script notebook into a single python script called top_ten.py.
